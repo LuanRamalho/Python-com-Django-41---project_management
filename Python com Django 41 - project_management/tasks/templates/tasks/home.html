@@ -38,7 +38,7 @@
             width: 80%;
             max-width: 500px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            text-align: left;
             transition: transform 0.3s ease;
         }
 
@@ -47,30 +47,105 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
-        a {
-            text-decoration: none;
-            color: #4CAF50;
+        .team-info {
+            margin-bottom: 10px;
+        }
+
+        .team-info strong {
             font-weight: bold;
         }
 
-        a:hover {
+        .team-actions {
+            margin-top: 10px;
+        }
+
+        .team-actions a {
+            text-decoration: none;
+            color: #4CAF50;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .team-actions a:hover {
             text-decoration: underline;
         }
 
         .container {
             padding: 20px;
         }
+
+        .add-team-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .add-team-btn:hover {
+            background-color: #45a049;
+        }
+
+        .search-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Gestão de Projetos - Times</h1>
-        <ul>
+
+        <!-- Barra de busca -->
+        <div class="search-container">
+            <input type="text" id="searchBar" class="search-bar" placeholder="Buscar pelo nome do time" onkeyup="searchTeams()">
+        </div>
+
+        <ul id="teamList">
             {% for team in teams %}
-                <li><a href="{% url 'team_projects' team.id %}"> Título: {{ team.name }} - Descrição: {{ team.description }}</a></li>
+                <li class="team-item">
+                    <a href="{% url 'team_projects' team.id %}" style="text-decoration: none; color: inherit;">
+                        <div class="team-info">
+                            <strong>Nome:</strong> {{ team.name }}<br>
+                            <strong>Descrição:</strong> {{ team.description }} <br>
+                        </div>
+                    </a>
+                    <div class="team-actions">
+                        <a href="{% url 'edit_team' team.id %}">Editar</a>
+                        <a href="{% url 'delete_team' team.id %}" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+                    </div>
+                </li>
             {% endfor %}
         </ul>
-        <a href="{% url 'add_team' %}" class="add-team-btn">Adicionar Novo Time</a> <!-- Link para adicionar time -->
+        <a href="{% url 'add_team' %}" class="add-team-btn">Adicionar Novo Time</a>
     </div>
+
+    <script>
+        function searchTeams() {
+            const query = document.getElementById('searchBar').value.toLowerCase();
+            const teams = document.querySelectorAll('.team-item');
+
+            teams.forEach(function(team) {
+                // Obtém corretamente o nome do time (evita pegar a descrição)
+                const teamName = team.querySelector('.team-info').innerHTML.split('<br>')[0].toLowerCase();
+                
+                if (teamName.includes(query)) {
+                    team.style.display = ''; // Exibe o item
+                } else {
+                    team.style.display = 'none'; // Oculta o item
+                }
+            });
+        }
+    </script>
 </body>
 </html>
