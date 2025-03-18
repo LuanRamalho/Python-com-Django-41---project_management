@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projetos de {{ team.name }}</title>
+    <title>Tarefas do Projeto {{ project.title }}</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -19,6 +19,19 @@
             padding: 20px;
             background-color: #4CAF50;
             margin-bottom: 20px;
+        }
+
+        .search-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
         }
 
         ul {
@@ -38,7 +51,7 @@
             width: 80%;
             max-width: 500px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            text-align: left;
             transition: transform 0.3s ease;
         }
 
@@ -47,30 +60,103 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
-        a {
-            text-decoration: none;
-            color: #4CAF50;
-            font-weight: bold;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
         .container {
             padding: 20px;
+        }
+
+        .task-info {
+            margin-bottom: 10px;
+        }
+
+        .action-btns {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .action-btns a {
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        .action-btns a:hover {
+            background-color: #45a049;
+        }
+
+        .action-btns a.delete-btn {
+            background-color: #e74c3c;
+        }
+
+        .action-btns a.delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .add-task-btn {
+            display: block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 16px;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .add-task-btn:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Tarefas do Projeto {{ project.title }}</h1>
-        <ul>
+
+        <!-- Barra de Busca -->
+        <div class="search-container">
+            <input type="text" id="searchBar" class="search-bar" placeholder="Buscar pelo título da tarefa" onkeyup="searchTasks()">
+        </div>
+
+        <ul id="taskList">
             {% for task in tasks %}
-                <li>Título: {{ task.title }} - Descrição: {{ task.description }} - Status: {{ task.status }} - Prazo: {{ task.deadline|date:"d/m/Y" }} - Proridade: {{ task.priority }}</li>
+                <li class="task-item">
+                    <div class="task-info">
+                        <strong class="task-title">Título:</strong> {{ task.title }}<br>
+                        <strong>Descrição:</strong> {{ task.description }}<br>
+                        <strong>Projeto:</strong> {{ task.project.title }}<br>
+                        <strong>Status:</strong> {{ task.status }}<br>
+                        <strong>Prazo:</strong> {{ task.deadline|date:"d/m/Y" }}<br>
+                        <strong>Prioridade:</strong> {{ task.priority }}
+                    </div>
+                    <div class="action-btns">
+                        <a href="{% url 'edit_task' task.id %}">Editar</a>
+                        <a href="{% url 'delete_task' task.id %}" class="delete-btn" onclick="return confirm('Tem certeza que deseja excluir esta tarefa?');">Excluir</a>
+                    </div>
+                </li>
             {% endfor %}
         </ul>
-        <a href="{% url 'add_task' project.id %}" class="add-task-btn">Adicionar Nova Tarefa</a> <!-- Link para adicionar tarefa -->
+
+        <a href="{% url 'add_task' project.id %}" class="add-task-btn">Adicionar Nova Tarefa</a>
     </div>
+
+    <script>
+        function searchTasks() {
+            const query = document.getElementById('searchBar').value.toLowerCase(); // Obtém o valor da pesquisa
+            const tasks = document.querySelectorAll('.task-item'); // Seleciona todas as tarefas
+
+            tasks.forEach(function(task) {
+                const titleElement = task.querySelector('.task-info').innerHTML.toLowerCase();
+                if (titleElement.includes(query)) {
+                    task.style.display = ''; // Exibe o item
+                } else {
+                    task.style.display = 'none'; // Oculta o item
+                }
+            });
+        }
+    </script>
 </body>
 </html>
