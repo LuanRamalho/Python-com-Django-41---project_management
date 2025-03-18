@@ -21,6 +21,19 @@
             margin-bottom: 20px;
         }
 
+        .search-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
         ul {
             display: flex;
             flex-direction: column;
@@ -38,8 +51,9 @@
             width: 80%;
             max-width: 500px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            text-align: left;
             transition: transform 0.3s ease;
+            cursor: pointer;
         }
 
         li:hover {
@@ -49,12 +63,7 @@
 
         a {
             text-decoration: none;
-            color: #4CAF50;
             font-weight: bold;
-        }
-
-        a:hover {
-            text-decoration: underline;
         }
 
         .container {
@@ -76,17 +85,80 @@
         .add-project-btn:hover {
             background-color: #45a049;
         }
+
+        .project-info {
+            margin-bottom: 10px;
+        }
+
+        .action-btns {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .action-btns a {
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        .action-btns a.edit {
+            background-color: #4CAF50;
+        }
+
+        .action-btns a.delete {
+            background-color: #B10000;
+        }
+
+        .action-btns a:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Projetos do Time {{ team.name }}</h1>
-        <ul>
+
+        <!-- Barra de Busca -->
+        <div class="search-container">
+            <input type="text" id="searchBar" class="search-bar" placeholder="Buscar pelo título do projeto" onkeyup="searchProjects()">
+        </div>
+
+        <ul id="projectList">
             {% for project in projects %}
-                <li><a href="{% url 'project_tasks' project.id %}"> Título: {{ project.title }} - Descrição: {{ project.description }} - Prazo: {{project.deadline|date:"d/m/Y"}}</a></li>
+                <li class="project-item" onclick="window.location='{% url 'project_tasks' project.id %}';">
+                    <div class="project-info">
+                        <strong class="project-title">Título:</strong> {{ project.title }}<br>
+                        <strong>Descrição:</strong> {{ project.description }}<br>
+                        <strong>Prazo:</strong> {{ project.deadline|date:"d/m/Y" }}<br>
+                        <strong>Equipe:</strong> {{ project.team.name }}
+                    </div>
+                    <div class="action-btns">
+                        <a href="{% url 'edit_project' project.id %}" class="edit">Editar</a>
+                        <a href="{% url 'confirm_delete_project' project.id %}" class="delete">Excluir</a>
+                    </div>
+                </li>
             {% endfor %}
         </ul>
-        <a href="{% url 'add_project' team.id %}" class="add-project-btn">Adicionar Novo Projeto</a> <!-- Link para adicionar projeto -->
+
+        <a href="{% url 'add_project' team.id %}" class="add-project-btn">Adicionar Novo Projeto</a>
     </div>
+
+    <script>
+        function searchProjects() {
+            const query = document.getElementById('searchBar').value.toLowerCase(); // Obtém o valor da pesquisa
+            const projects = document.querySelectorAll('.project-item'); // Seleciona todos os projetos
+
+            projects.forEach(function(project) {
+                const titleElement = project.querySelector('.project-info').innerHTML.toLowerCase();
+                if (titleElement.includes(query)) {
+                    project.style.display = ''; // Exibe o item
+                } else {
+                    project.style.display = 'none'; // Oculta o item
+                }
+            });
+        }
+    </script>
 </body>
 </html>
