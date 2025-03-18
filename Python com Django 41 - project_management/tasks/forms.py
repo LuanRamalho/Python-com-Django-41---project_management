@@ -12,7 +12,7 @@ class ProjectForm(forms.ModelForm):
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ['title', 'description', 'deadline', 'priority', 'status']
+        fields = ['title', 'description', 'deadline', 'priority', 'status', 'project']
         widgets = {
             'deadline': forms.DateInput(format='%d/%m/%Y', attrs={'type': 'date'})
         }
